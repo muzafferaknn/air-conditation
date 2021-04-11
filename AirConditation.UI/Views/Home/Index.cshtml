@@ -1,0 +1,54 @@
+﻿
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<script>
+    function check() {
+
+        var country_input = document.getElementById("country").value;
+        $.ajax({
+            type: 'POST',
+            url: '/Home/Submit',
+            data: {
+                'country': country_input
+            },
+            success: function () {
+                response => console.log("request send")
+            }
+        });
+    }
+    (function setupConnection() {
+        var connection = new signalR.HubConnectionBuilder().withUrl("/hub").build();
+        connection.on("response", function (rsp) {
+
+            var newOrderNode = document.createElement("div");
+            newOrderNode.classList.add("col-lg-12");
+            var textnode = document.createTextNode(`${rsp.country} - ${rsp.description}`);
+            newOrderNode.appendChild(textnode);
+            var orderDiv = document.getElementById("responses");
+            orderDiv.insertBefore(newOrderNode, orderDiv.firstChild);
+
+        });
+        connection.start().catch(err => console.error(err.toString())).then(response => console.log("connected"));
+    })();
+</script>
+<div class="text-center">
+    <br />
+    <h6 class="justify-content-center">Hava Durumu Sorgulama</h6>
+    <br />
+    <div class="form-group">
+        <label>Şehir Giriniz</label>
+        <input type="text" name="country" id="country" />
+    </div>
+    <button onclick="check();" class="btn btn-primary">Sorgula</button>
+    <br />
+    <div class="container">
+        <h3>Sonuçlar</h3>
+        <div id="responses" class="row">
+
+
+        </div>
+    </div>
+
+</div>
